@@ -10,12 +10,14 @@
   "devTools": false,
   "dependencies": {
     "adm-zip": "^0.5.10",
-    "puppeteer": "^23.0.0"
+    "puppeteer": "^23.0.0",
+    "canvas": "^3.2.1",
+    "jsdom": "^27.4.0"
   },
   "preview": {
     "json": {
       "thumbnail": {
-        "path": "thumbnail/lottie-puppeteer.cjs",
+        "path": "thumbnail/lottie-render.cjs",
         "size": 400,
         "allowZoom": true
       },

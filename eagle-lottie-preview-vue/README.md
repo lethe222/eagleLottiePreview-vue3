@@ -38,20 +38,24 @@ eagle-lottie-preview-vue/
 ## 主要改进
 
 ### 1. 组件化架构
+
 - 使用 Vue 3 的 Composition API 重写
 - 核心播放器组件 `LottiePlayer.vue` 可复用
 - 清晰的组件层次结构
 
 ### 2. 响应式状态管理
+
 - 使用 Vue 的响应式系统管理播放状态
 - 自动更新 UI，无需手动 DOM 操作
 
 ### 3. 现代化构建
+
 - Vite 提供快速的开发体验
 - 优化的生产构建
 - 自动代码分割
 
 ### 4. 更好的代码组织
+
 - 分离的视图组件
 - 可维护的代码结构
 - TypeScript 友好（可选）
@@ -77,6 +81,7 @@ npm run build
 ```
 
 构建后的文件会输出到 `dist/` 目录，包含：
+
 - `viewer/lottie.html` - JSON 查看器
 - `viewer/lottie-zip.html` - ZIP 查看器
 - `thumbnail/` - 缩略图生成脚本
@@ -131,26 +136,28 @@ npm run build
 ### URL 参数
 
 **JSON 查看器：**
+
 ```
 lottie.html?path=/path/to/animation.json
 ```
 
 **ZIP 查看器：**
+
 ```
 lottie-zip.html?path=/path/to/animation.zip
 ```
 
 ## 与原版的区别
 
-| 特性 | 原版 | Vue 3 版 |
-|------|------|----------|
-| 框架 | 原生 JavaScript | Vue 3 |
-| 状态管理 | 手动 DOM 操作 | 响应式系统 |
-| 代码组织 | 单文件 HTML | 组件化 |
-| 构建工具 | 无 | Vite |
-| 开发体验 | 基础 | 热重载、快速构建 |
-| 可维护性 | 中等 | 高 |
-| 扩展性 | 有限 | 良好 |
+| 特性     | 原版            | Vue 3 版         |
+| -------- | --------------- | ---------------- |
+| 框架     | 原生 JavaScript | Vue 3            |
+| 状态管理 | 手动 DOM 操作   | 响应式系统       |
+| 代码组织 | 单文件 HTML     | 组件化           |
+| 构建工具 | 无              | Vite             |
+| 开发体验 | 基础            | 热重载、快速构建 |
+| 可维护性 | 中等            | 高               |
+| 扩展性   | 有限            | 良好             |
 
 ## 系统要求
 
@@ -161,11 +168,13 @@ lottie-zip.html?path=/path/to/animation.zip
 ### Canvas 安装
 
 **macOS:**
+
 ```bash
 brew install pkg-config cairo pango libpng jpeg giflib librsvg
 ```
 
 **Ubuntu/Debian:**
+
 ```bash
 sudo apt-get install build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
 ```

@@ -21,11 +21,27 @@ async function isLottieFile(filePath) {
 async function renderLottieFrameWithPuppeteer(lottieData, width, height) {
   let browser = null;
   try {
-    // 启动浏览器
-    browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
+    console.log("正在启动 Puppeteer 浏览器...");
+
+    // 启动浏览器（增加超时和 Windows 兼容性配置）
+    browser = await Promise.race([
+      puppeteer.launch({
+        headless: true,
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-accelerated-2d-canvas',
+          '--disable-gpu'
+        ],
+        timeout: 30000, // 30秒超时
+      }),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Puppeteer 启动超时')), 30000)
+      )
+    ]);
+
+    console.log("✓ Puppeteer 浏览器启动成功");
 
     const page = await browser.newPage();
     await page.setViewport({ width, height });
@@ -64,10 +80,12 @@ async function renderLottieFrameWithPuppeteer(lottieData, width, height) {
 
     await page.setContent(html);
 
-    // 等待 Lottie 加载完成
-    await page.waitForFunction(() => window.lottieReady === true, { timeout: 5000 });
+    console.log("等待 Lottie 加载...");
+    // 等待 Lottie 加载完成（增加超时到 10 秒）
+    await page.waitForFunction(() => window.lottieReady === true, { timeout: 10000 });
     await new Promise(resolve => setTimeout(resolve, 500)); // 额外等待渲染完成
 
+    console.log("✓ Lottie 加载完成，开始截图");
     // 截图
     const screenshot = await page.screenshot({
       type: 'png',
@@ -75,10 +93,16 @@ async function renderLottieFrameWithPuppeteer(lottieData, width, height) {
     });
 
     await browser.close();
+    console.log("✓ Puppeteer 渲染成功");
     return screenshot;
   } catch (error) {
+    console.error("Puppeteer 渲染失败:", error.message);
     if (browser) {
-      await browser.close();
+      try {
+        await browser.close();
+      } catch (closeError) {
+        console.error("关闭浏览器失败:", closeError.message);
+      }
     }
     throw error;
   }
