@@ -1,10 +1,11 @@
 const fs = require("fs");
+const os = require("os");
 
 const TIMEOUTS = {
-  JSDOM_RENDER: 5000,
-  PUPPETEER_RENDER: 10000,
-  SVG_RENDER: 3000,
-  TOTAL: 15000,
+  JSDOM_RENDER: 8000,
+  PUPPETEER_RENDER: 20000,
+  SVG_RENDER: 5000,
+  TOTAL: 35000,
 };
 
 function withTimeout(promise, ms, errorMsg = "操作超时") {
@@ -72,8 +73,32 @@ async function renderWithJSDOM(lottieData, width, height, timeout) {
 
 async function renderWithPuppeteer(lottieData, width, height, timeout) {
   const puppeteer = require("puppeteer");
+  const path = require("path");
 
-  const browser = await puppeteer.launch({
+  let executablePath = undefined;
+  if (os.platform() === "win32") {
+    const commonPaths = [
+      "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+      "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+      path.join(
+        os.homedir(),
+        "AppData",
+        "Local",
+        "Google",
+        "Chrome",
+        "Application",
+        "chrome.exe",
+      ),
+    ];
+    for (const p of commonPaths) {
+      if (fs.existsSync(p)) {
+        executablePath = p;
+        break;
+      }
+    }
+  }
+
+  const launchOptions = {
     headless: true,
     args: [
       "--no-sandbox",
@@ -82,7 +107,14 @@ async function renderWithPuppeteer(lottieData, width, height, timeout) {
       "--disable-gpu",
     ],
     timeout: timeout,
-  });
+  };
+
+  if (executablePath) {
+    console.log(`Windows 环境: 使用本地 Chrome -> ${executablePath}`);
+    launchOptions.executablePath = executablePath;
+  }
+
+  const browser = await puppeteer.launch(launchOptions);
 
   try {
     const page = await browser.newPage();
