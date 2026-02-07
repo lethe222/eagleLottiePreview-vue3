@@ -1,0 +1,27 @@
+{
+  "name": "eagleLottiePreview-vue3",
+  "private": true,
+  "version": "2.0.0",
+  "type": "module",
+  "description": "Eagle Lottie 预览插件 - Vue 3 重写版",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && npm run copy-assets && npm run move-html && npm run fix-paths && npm run post-build",
+    "copy-assets": "cp -r thumbnail dist/ && cp -r utils dist/ && cp logo.png dist/ && cp manifest.json dist/",
+    "move-html": "mv dist/lottie.html dist/viewer/ && mv dist/lottie-zip.html dist/viewer/",
+    "fix-paths": "node fix-html-paths.js",
+    "post-build": "node post-build.cjs",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.16",
+    "jszip": "^3.10.1",
+    "lottie-web": "^5.13.0",
+    "puppeteer-core": "^24.37.2",
+    "vue": "^3.5.24"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.1",
+    "vite": "^7.2.4"
+  }
+}
