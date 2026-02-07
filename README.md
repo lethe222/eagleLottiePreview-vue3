@@ -1,8 +1,18 @@
 # Eagle Lottie Preview Plugin - Vue 3 版本
 
-这是 Eagle Lottie 预览插件的 Vue 3 重写版本，使用现代化的技术栈重构了整个项目。
+## 这是 Eagle Lottie 预览插件的 Vue 3 重写版本，使用现代化的技术栈重构了整个项目。
 
----
+### 修改内容
+
+1. 修复初次播放未从第 0 帧开始的问题
+   - 原因 ：Lottie 加载完成后默认可能停留在某一帧或并未重置到起点。
+   - 解决 ：在 DOMLoaded 事件中添加了 animation.value.goToAndPlay(0, true) ，强制从头开始播放。
+
+2. 优化进度条样式
+   - 圆角轨道 ：进度条背景和填充部分都增加了 border-radius: 3px ，视觉更柔和。
+   - 圆形播放点 ：在进度条末端添加了一个白色的圆形指示器（Handle），并带有轻微阴影，方便拖拽和查看当前进度。
+   - 加粗 ：将进度条高度从 4px 增加到 6px，提升操作手感。
+3. 优化进度条问题，调整按钮视觉效果
 
 ## ⚠️ Eagle/Electron 插件开发铁律
 
@@ -12,46 +22,6 @@
 
 - **纯逻辑计算**（如重命名文件、数据处理）→ 在 Node.js 里做
 - **图形渲染**（如生成缩略图、格式转换、Canvas 操作）→ **永远不要在 Node.js 里模拟浏览器**
-
-### ✅ 正确做法
-
-**直接调起系统里的真实浏览器（Edge/Chrome）去做，做完把结果拿回来。**
-
-```javascript
-// ✅ 正确：使用真实浏览器
-const puppeteer = require("puppeteer-core");
-const browser = await puppeteer.launch({
-  executablePath: "/path/to/chrome", // 使用系统浏览器
-});
-const result = await browser.screenshot();
-```
-
-### ❌ 错误做法
-
-```javascript
-// ❌ 错误：在 Node.js 中模拟浏览器
-const { JSDOM } = require("jsdom"); // 需要复杂配置
-const { createCanvas } = require("canvas"); // 需要原生编译
-// 这条路只会让你在 Windows 上痛苦万分
-```
-
-### 💡 为什么？
-
-1. **Canvas 模块需要原生编译** - Windows 上需要 Python、Visual Studio Build Tools，经常失败
-2. **JSDOM 模拟不完整** - 很多浏览器 API 无法完美模拟
-3. **Puppeteer 完整版太大** - 145MB Chromium 下载，国内网络经常失败
-4. **系统浏览器现成可用** - Windows 10/11 自带 Edge，macOS 有 Chrome
-
-### 🎯 本项目的实践
-
-本插件完美践行了这一原则，使用 **Puppeteer-Core + 系统浏览器** 方案：
-
-- ✅ 无需编译原生模块
-- ✅ 无需下载 Chromium
-- ✅ 跨平台稳定
-- ✅ 安装快速（11秒 vs 几分钟）
-
----
 
 ## ✨ 核心特性
 
@@ -65,44 +35,13 @@ const { createCanvas } = require("canvas"); // 需要原生编译
 - 键盘快捷键（空格：播放/暂停，左右箭头：帧进退）
 - 自适应尺寸
 - 加载状态显示
-- 错误处理
 
 ### 📦 文件格式支持
 
 - **JSON 文件** - 标准 Lottie JSON 格式
 - **ZIP 文件** - 包含外部图片资源的 Lottie ZIP 包
   - 自动解压并处理资源
-  - 将外部图片转换为 Base64 内嵌
   - 智能匹配图片路径
-
-### 🖼️ 缩略图生成
-
-采用 **Puppeteer-Core + 本地浏览器** 方案：
-
-- 使用真实浏览器渲染（Edge/Chrome）
-- SVG 渲染模式，支持复杂动画
-- 自动跳转到中间帧
-- 支持透明背景
-- 小尺寸文件自动 2x 放大
-- 详细的调试日志（保存到桌面）
-
-**技术实现**：
-
-```javascript
-// 自动查找本地浏览器（Windows 优先 Edge，macOS 优先 Chrome）
-const browserPath = findBrowser();
-
-// 使用 puppeteer-core 启动浏览器
-const browser = await puppeteer.launch({
-  executablePath: browserPath,
-  headless: "new",
-});
-
-// 渲染 Lottie 动画并截图
-const buffer = await page.screenshot({ type: "png" });
-```
-
----
 
 ## 🛠️ 技术栈
 
@@ -148,8 +87,6 @@ eagle-lottie-preview-vue/
 ```bash
 npm install
 ```
-
-**注意**：安装时会自动跳过 Chromium 下载，因为我们使用系统浏览器。
 
 ### 开发模式
 
@@ -230,7 +167,7 @@ npm run build
 
 ```javascript
 // 在文件顶部找到这一行（第 8 行左右）
-const ENABLE_DEBUG_LOG = false;  // 改为 true 启用日志文件
+const ENABLE_DEBUG_LOG = false; // 改为 true 启用日志文件
 ```
 
 启用后，每次生成缩略图时会在桌面创建 `lottie-debug-*.txt` 文件，包含详细的调试信息。
@@ -246,16 +183,7 @@ const ENABLE_DEBUG_LOG = false;  // 改为 true 启用日志文件
 
 ### 常见问题
 
-**Q: 为什么不使用 canvas 模块？**
-A: canvas 模块需要原生编译，在 Windows 上经常失败，需要安装 Python、Visual Studio Build Tools 等工具，非常复杂。
-
-**Q: 为什么不使用完整的 puppeteer？**
-A: 完整的 puppeteer 会下载 145MB 的 Chromium，在国内网络环境下经常失败，而且安装时间长。
-
-**Q: 如果系统没有浏览器怎么办？**
-A: Windows 10/11 自带 Edge，macOS 通常有 Chrome。如果都没有，可以安装 Chrome 浏览器。
-
-**Q: 桌面上有很多 lottie-debug-*.txt 文件怎么办？**
+**Q: 桌面上有很多 lottie-debug-\*.txt 文件怎么办？**
 A: 这些是调试日志文件。如果不需要调试，将 `ENABLE_DEBUG_LOG` 设置为 `false` 即可停止生成。已生成的文件可以手动删除。
 
 ---
@@ -268,6 +196,5 @@ A: 这些是调试日志文件。如果不需要调试，将 `ENABLE_DEBUG_LOG` 
 
 ## 🙏 致谢
 
-- 原始项目：[eagle-lottie-preview](https://github.com/Lionad-Morotar/eagle-lottie-preview)
 - 特别感谢 @Lionel 为本插件提供图标设计和封面UI支持
-- 感谢社区提供的技术方案和反馈
+- 感谢匿名大佬提供的方向指导

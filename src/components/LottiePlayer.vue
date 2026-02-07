@@ -35,57 +35,87 @@
       <div class="buttons">
         <div class="button-group">
           <button class="control-button" @click="gotoPrevFrame">
+            <!-- 上一帧 -->
             <svg
               width="24"
               height="24"
-              viewBox="0 0 24 24"
+              viewBox="0 0 36 36"
               fill="none"
-              stroke="currentColor"
-              stroke-width="2"
+              xmlns="http://www.w3.org/2000/svg"
             >
-              <path d="M19 20L9 12l10-8v16z"></path>
-              <path d="M5 19V5"></path>
+              <path
+                d="M28.5 25.8388C28.5 27.5158 26.5601 28.4481 25.2506 27.4005L15.4522 19.5617C14.4514 18.7611 14.4514 17.2389 15.4522 16.4383L25.2506 8.59951C26.5601 7.55189 28.5 8.48424 28.5 10.1612V25.8388Z"
+                stroke="white"
+                stroke-width="3"
+              />
+              <path
+                d="M7.5 28.5V7.5"
+                stroke="white"
+                stroke-width="3"
+                stroke-linecap="round"
+              />
             </svg>
           </button>
           <button
             class="control-button play-pause-button"
             @click="togglePlayPause"
           >
+            <!-- 播放按钮 -->
             <svg
               v-if="!isPlaying"
               width="24"
               height="24"
-              viewBox="0 0 24 24"
+              viewBox="0 0 36 36"
               fill="none"
-              stroke="currentColor"
-              stroke-width="2"
+              xmlns="http://www.w3.org/2000/svg"
             >
-              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              <path
+                d="M7.5 9.995C7.5 7.6215 10.1257 6.18797 12.1223 7.47146L24.5745 15.4765C26.4115 16.6574 26.4115 19.3426 24.5745 20.5235L12.1223 28.5285C10.1257 29.812 7.5 28.3785 7.5 26.005V9.995Z"
+                stroke="white"
+                stroke-width="3"
+              />
             </svg>
+            <!-- 暂停按钮 -->
             <svg
               v-else
               width="24"
               height="24"
-              viewBox="0 0 24 24"
+              viewBox="0 0 36 36"
               fill="none"
-              stroke="currentColor"
-              stroke-width="2"
+              xmlns="http://www.w3.org/2000/svg"
             >
-              <rect x="6" y="4" width="4" height="16"></rect>
-              <rect x="14" y="4" width="4" height="16"></rect>
+              <path
+                d="M13.5 6H10.5C9.67157 6 9 6.67157 9 7.5V28.5C9 29.3284 9.67157 30 10.5 30H13.5C14.3284 30 15 29.3284 15 28.5V7.5C15 6.67157 14.3284 6 13.5 6Z"
+                stroke="white"
+                stroke-width="2.25"
+              />
+              <path
+                d="M25.5 6H22.5C21.6716 6 21 6.67157 21 7.5V28.5C21 29.3284 21.6716 30 22.5 30H25.5C26.3284 30 27 29.3284 27 28.5V7.5C27 6.67157 26.3284 6 25.5 6Z"
+                stroke="white"
+                stroke-width="2.25"
+              />
             </svg>
           </button>
           <button class="control-button" @click="gotoNextFrame">
+            <!-- 下一帧 -->
             <svg
               width="24"
               height="24"
-              viewBox="0 0 24 24"
+              viewBox="0 0 36 36"
               fill="none"
-              stroke="currentColor"
-              stroke-width="2"
+              xmlns="http://www.w3.org/2000/svg"
             >
-              <path d="M5 4l10 8-10 8V4z"></path>
-              <path d="M19 5v14"></path>
+              <path
+                d="M7.5 10.1612C7.5 8.48424 9.43986 7.55189 10.7494 8.59951L20.5478 16.4383C21.5486 17.2389 21.5486 18.7611 20.5478 19.5617L10.7494 27.4005C9.43986 28.4481 7.5 27.5158 7.5 25.8388V10.1612Z"
+                stroke="#FFF8F8"
+                stroke-width="3"
+              />
+              <path
+                d="M28.5 7.5V28.5"
+                stroke="#FFF8F8"
+                stroke-width="3"
+                stroke-linecap="round"
+              />
             </svg>
           </button>
         </div>
@@ -111,8 +141,8 @@
             @click="toggleFullscreen"
           >
             <svg
-              width="24"
-              height="24"
+              width="20"
+              height="20"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -393,7 +423,7 @@ const loadAnimation = (data) => {
       container: animationContainer.value,
       renderer: "svg",
       loop: true,
-      autoplay: true,
+      autoplay: false,
       animationData: data,
       rendererSettings: {
         progressiveLoad: false,
@@ -405,6 +435,9 @@ const loadAnimation = (data) => {
 
     animation.value.addEventListener("DOMLoaded", () => {
       totalFrames.value = Math.floor(animation.value.totalFrames);
+
+      // 强制从第 0 帧开始播放，解决初次播放进度条不准确的问题
+      animation.value.goToAndPlay(0, true);
 
       resizeAnimation();
       isLoading.value = false;
@@ -433,6 +466,10 @@ const loadAnimation = (data) => {
         updateProgress(animation.value.currentFrame, totalFrames.value);
         updateFrameCounter();
       }
+    });
+
+    animation.value.addEventListener("loopComplete", () => {
+      updateProgress(0, totalFrames.value);
     });
   } catch (error) {
     console.error("加载 Lottie 动画时出错:", error);
@@ -577,7 +614,9 @@ watch(
   border: 2px solid transparent;
   border-radius: 50%;
   cursor: pointer;
-  transition: all 0.2s;
+  transition:
+    opacity 0.2s,
+    background-color 0.2s;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
@@ -646,11 +685,12 @@ watch(
 
 .progress-container {
   flex: 1;
-  height: 4px;
+  height: 6px;
   background: rgba(255, 255, 255, 0.2);
   position: relative;
   cursor: pointer;
   margin: 0 15px;
+  border-radius: 3px;
 }
 
 .progress-bar {
@@ -658,7 +698,20 @@ watch(
   background: white;
   width: 0%;
   position: absolute;
-  transition: width 0.1s linear;
+  border-radius: 3px;
+}
+
+.progress-bar::after {
+  content: "";
+  position: absolute;
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 .frame-counter {
@@ -680,47 +733,45 @@ watch(
 
 .button-group {
   display: flex;
-  gap: 15px;
+  gap: 10px;
   align-items: center;
 }
 
 .control-button {
-  background: none;
+  background: transparent;
   border: none;
-  color: white;
+  color: rgb(255, 255, 255);
   font-size: 24px;
   cursor: pointer;
-  opacity: 0.7;
-  padding: 5px;
-  width: 30px;
-  height: 30px;
+  opacity: 0.8;
+  padding: 6px;
+  min-width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: opacity 0.2s;
+  transition:
+    opacity 0.2s,
+    background-color 0.2s;
+  border-radius: 8px;
 }
 
 .control-button:hover {
   opacity: 1;
-}
-
-.play-pause-button {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.15);
 }
 
 .speed-button,
 .fullscreen-button {
-  font-size: 14px;
+  font-size: 15px;
   background: rgba(255, 255, 255, 0.1);
-  padding: 5px 10px;
-  border-radius: 5px;
+  padding: 0 10px;
+  height: 36px;
+  width: auto;
 }
 
 .fullscreen-button {
-  width: 28px;
-  height: 28px;
-  padding: 6px;
+  width: 36px;
+  padding: 0;
 }
 </style>

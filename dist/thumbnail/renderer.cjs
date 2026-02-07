@@ -3,7 +3,11 @@ const os = require("os");
 const path = require("path");
 const puppeteer = require("puppeteer-core");
 
-// ==================== 调试日志 ====================
+// ==================== 调试日志配置 ====================
+// 设置为 false 可以禁用调试日志文件生成（只在控制台输出）
+// 设置为 true 会在桌面生成 lottie-debug-*.txt 日志文件
+const ENABLE_DEBUG_LOG = false;
+
 const DEBUG_LOG_PATH = path.join(
   os.homedir(),
   "Desktop",
@@ -14,6 +18,9 @@ function debugLog(message, level = "INFO") {
   const timestamp = new Date().toISOString();
   const logLine = `[${timestamp}] [${level}] ${message}`;
   console.log(logLine);
+
+  if (!ENABLE_DEBUG_LOG) return;
+
   try {
     fs.appendFileSync(DEBUG_LOG_PATH, logLine + "\n", "utf8");
   } catch (err) {
@@ -33,6 +40,8 @@ function debugError(message, error) {
 }
 
 function initDebugLog() {
+  if (!ENABLE_DEBUG_LOG) return;
+
   const header = [
     "=".repeat(80),
     "Lottie 缩略图生成调试日志 - Puppeteer-Core 方案",
@@ -54,6 +63,8 @@ function initDebugLog() {
 }
 
 function finalizeDebugLog(success = true) {
+  if (!ENABLE_DEBUG_LOG) return;
+
   const footer = [
     "",
     "=".repeat(80),
