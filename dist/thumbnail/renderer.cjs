@@ -6,7 +6,7 @@ const puppeteer = require("puppeteer-core");
 // ==================== 调试日志配置 ====================
 // 设置为 false 可以禁用调试日志文件生成（只在控制台输出）
 // 设置为 true 会在桌面生成 lottie-debug-*.txt 日志文件
-const ENABLE_DEBUG_LOG = false;
+const ENABLE_DEBUG_LOG = true;
 
 const DEBUG_LOG_PATH = path.join(
   os.homedir(),
