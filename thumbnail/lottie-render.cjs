@@ -2,31 +2,21 @@ const path = require("path");
 const fs = require("fs");
 const { renderMiddleFrame, TIMEOUTS } = require("./renderer.cjs");
 
-async function isLottieFile(filePath) {
-  try {
-    const content = await fs.promises.readFile(filePath, "utf8");
-    const data = JSON.parse(content);
-    return (
-      data.layers !== undefined ||
-      (data.v !== undefined && data.assets !== undefined)
-    );
-  } catch (error) {
-    return false;
-  }
-}
-
 module.exports = async ({ src, dest, item }) => {
   try {
     console.log("=== Lottie JSON 缩略图生成器 ===");
     console.log("源文件:", src);
     console.log("目标文件:", dest);
 
-    if (!(await isLottieFile(src))) {
+    // 一次性读取并解析文件
+    const content = await fs.promises.readFile(src, "utf8");
+    const lottieData = JSON.parse(content);
+
+    // 验证是否为有效的 Lottie 文件
+    if (!lottieData.layers && !(lottieData.v && lottieData.assets)) {
       throw new Error("不是有效的 Lottie 文件");
     }
     console.log("✓ Lottie 文件验证通过");
-
-    const lottieData = JSON.parse(await fs.promises.readFile(src, "utf8"));
 
     const originalWidth = lottieData.w || lottieData.width || 512;
     const originalHeight = lottieData.h || lottieData.height || 512;
