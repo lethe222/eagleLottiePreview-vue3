@@ -9,10 +9,9 @@
   "keywords": ["lottie", "animation", "json", "zip", "动画", "vue"],
   "devTools": false,
   "dependencies": {
-    "adm-zip": "^0.5.10",
-    "puppeteer": "^23.0.0",
-    "canvas": "^3.2.1",
-    "jsdom": "^27.4.0"
+    "adm-zip": "^0.5.16",
+    "lottie-web": "^5.13.0",
+    "puppeteer-core": "^24.37.2"
   },
   "preview": {
     "json": {
