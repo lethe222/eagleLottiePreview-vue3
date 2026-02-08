@@ -50,6 +50,7 @@ function getLottieScript() {
 
     if (!cachedLottiePath) {
         const possiblePaths = [
+            path.resolve(__dirname, 'lottie.min.js'), // Vendored 版本：本地文件
             path.resolve(__dirname, '../node_modules/lottie-web/build/player/lottie.min.js'),
             path.resolve(__dirname, '../../node_modules/lottie-web/build/player/lottie.min.js'),
         ];

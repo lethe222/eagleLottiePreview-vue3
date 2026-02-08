@@ -1,12 +1,14 @@
 {
   "name": "eagleLottiePreview-vue3",
   "private": true,
-  "version": "2.0.0",
+  "version": "2.1.0",
   "type": "module",
   "description": "Eagle Lottie 预览插件 - Vue 3 重写版",
   "scripts": {
     "dev": "vite",
     "build": "vite build && npm run copy-assets && npm run move-html && npm run fix-paths && npm run post-build",
+    "build:release": "vite build && npm run copy-assets && npm run move-html && npm run fix-paths && BUILD_MODE=release npm run post-build",
+    "build:vendored": "vite build && npm run copy-assets && npm run move-html && npm run fix-paths && BUILD_MODE=vendored npm run post-build",
     "copy-assets": "cp -r thumbnail dist/ && cp -r utils dist/ && cp logo.png dist/ && cp manifest.json dist/",
     "move-html": "mv dist/lottie.html dist/viewer/ && mv dist/lottie-zip.html dist/viewer/",
     "fix-paths": "node fix-html-paths.js",

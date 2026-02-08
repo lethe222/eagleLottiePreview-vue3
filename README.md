@@ -4,9 +4,18 @@
 
 ### 最新更新 (2026-02-08)
 
+#### 🎯 重大改进：Vendored 构建模式
+解决了插件在其他电脑上安装失败的问题：
+- **新增 Vendored 构建模式**：`npm run build:vendored`
+- 包含精简的依赖（25 MB），无需依赖 Eagle 的自动安装
+- 将 lottie.min.js 直接放在 thumbnail 目录，避免 node_modules 查找
+- 只包含运行时必需的文件，大幅减小体积
+- **推荐用于打包分发**
+
 #### 🐛 Bug 修复
 1. **修复 ZIP 文件预览失败** - 添加了缺失的 `adm-zip` 依赖
 2. **修复 JSON 文件预览超时** - 优化了 lottie-web 库的查找逻辑
+3. **修复插件安装问题** - 发现 Eagle 不会自动安装 manifest.json 中的依赖
 
 #### ⚡ 性能优化
 1. **缓存机制** - 缓存浏览器路径和 lottie.min.js 脚本（300KB），避免重复读取
@@ -16,9 +25,9 @@
 5. **性能提升** - 首次生成提升 30-40%，后续生成提升 50-60%
 
 #### 📦 体积优化
-- 从 96 MB 优化到 **45.54 MB**（减少 52%）
-- 删除了不必要的测试文件、文档、类型定义等
-- 只保留运行时必需的依赖
+- **开发模式**：38 MB（包含完整 node_modules）
+- **Vendored 模式**：25 MB（包含精简依赖）⭐ 推荐
+- **Release 模式**：0.6 MB（不包含依赖，但 Eagle 不会自动安装）
 
 #### 🔧 调试改进
 - 默认禁用桌面日志文件（避免桌面混乱）
@@ -119,23 +128,70 @@ npm run dev
 
 ### 构建生产版本
 
+本项目提供三种构建模式，适用于不同场景：
+
+#### 1. 开发模式（推荐用于本地测试）
+
 ```bash
 npm run build
 ```
+
+- **包含完整 node_modules**（约 38 MB）
+- 适合本地开发和测试
+- 所有依赖都已安装和优化
+- 可以直接在 Eagle 中导入项目目录使用
+
+#### 2. Vendored 模式（推荐用于分发）⭐
+
+```bash
+npm run build:vendored
+```
+
+- **包含精简的依赖**（约 25 MB）
+- 只包含运行时必需的文件
+- 不依赖 Eagle 的自动依赖安装
+- **推荐用于打包分发给其他用户**
+- 包含内容：
+  - `lottie.min.js`（299 KB）- 直接放在 thumbnail 目录
+  - `adm-zip`（164 KB）- ZIP 文件解压
+  - `puppeteer-core`（11 MB）- 浏览器自动化
+  - 相关依赖（约 13 MB）
+
+#### 3. Release 模式（不推荐）
+
+```bash
+npm run build:release
+```
+
+- **不包含 node_modules**（约 0.6 MB）
+- 理论上应该由 Eagle 自动安装依赖
+- ⚠️ **实测 Eagle 不会自动安装依赖，导致插件无法工作**
+- 不推荐使用
+
+### 在 Eagle 中安装
+
+#### 方式一：本地开发测试
+
+1. 构建项目：`npm run build`
+2. 在 Eagle 中直接导入项目的 `dist/` 目录
+3. 插件会立即生效
+
+#### 方式二：打包分发（推荐）
+
+1. 构建 Vendored 版本：`npm run build:vendored`
+2. 将 `dist/` 目录压缩为 `.eagleplugin` 文件
+3. 双击 `.eagleplugin` 文件安装到 Eagle
+4. 或分享给其他用户安装
 
 构建后的文件会输出到 `dist/` 目录，包含：
 
 - `viewer/lottie.html` - JSON 查看器
 - `viewer/lottie-zip.html` - ZIP 查看器
 - `thumbnail/` - 缩略图生成脚本
+  - `lottie.min.js` - Lottie 库（Vendored 模式）
+- `node_modules/` - 精简的依赖（Vendored 模式）
 - `manifest.json` - 插件配置
 - 其他资源文件
-
-### 在 Eagle 中安装
-
-1. 构建项目：`npm run build`
-2. 将 `dist/` 目录中的所有文件复制到 Eagle 插件目录
-3. 在 Eagle 中重新加载插件
 
 ---
 
